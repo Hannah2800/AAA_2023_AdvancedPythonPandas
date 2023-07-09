@@ -145,11 +145,11 @@ def train_val_test(df, testsize=0.3, valsize=0.2):
 # method for sampling data, when its already splittet:
 
 # x_set and y_set are the already splitted datasets, which should be sampled
-def sampling_already_splitted(x_set, y_set, dependend, num_samples):
+def sampling_already_splitted(x_set, y_set, dependend, num_samples, random_state=42):
     
     y_val_df = y_set.to_frame() # y_set is series, so turn it to frame
     df = pd.concat([x_set, y_val_df], axis=1) # concat to whole df
-    df_sample = df.sample(num_samples) # sample the df
+    df_sample = df.sample(num_samples, random_state=random_state) # sample the df
     y_val = df_sample[dependend] # again split in y and x set
     x_val = df_sample.drop(columns = dependend)
     
