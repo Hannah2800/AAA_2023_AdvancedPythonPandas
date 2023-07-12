@@ -9,6 +9,7 @@ from sklearn import metrics
 from sklearn.model_selection import RandomizedSearchCV, RepeatedStratifiedKFold
 import math
 import pandas as pd
+import numpy as np
 
 #################################################################################################################################
 
@@ -63,26 +64,38 @@ def pipeline_for_prediction(categoric, numeric, model):
 # method for creating scores based on a specific dataframe and feature (depended variable):
 
 # function for getting different scores for a model
-def get_prediction_scores(y_true, y_predicted, df, depend_feat):
-    print("MODEL SCORES:")
-    print(f"MAE: {metrics.mean_absolute_error(y_true, y_predicted): .3f}")
-    print(f"MSE: {metrics.mean_squared_error(y_true, y_predicted): .3f}")
-    print(f"RMSE: {math.sqrt(metrics.mean_squared_error(y_true, y_predicted)): .3f}")
-    print(f"Accuracy:", round((1-(metrics.mean_absolute_error(y_true, y_predicted)/df[depend_feat].mean()))*100,2),
-          "%")
-    print(f"R2: {100 * metrics.r2_score(y_true, y_predicted): .3f} %")
-    print(f"Max Residual Error: {metrics.max_error(y_true, y_predicted): .3f}")
+def get_prediction_scores(if_log, y_true, y_predicted, df, depend_feat):
+    
+    if if_log == False:
+        print("MODEL SCORES:")
+        print(f"MAE: {metrics.mean_absolute_error(y_true, y_predicted): .3f}")
+        print(f"MSE: {metrics.mean_squared_error(y_true, y_predicted): .3f}")
+        print(f"RMSE: {math.sqrt(metrics.mean_squared_error(y_true, y_predicted)): .3f}")
+        print(f"Accuracy:", round((1-(metrics.mean_absolute_error(y_true, y_predicted)/df[depend_feat].mean()))*100,2),
+              "%")
+        print(f"R2: {100 * metrics.r2_score(y_true, y_predicted): .3f} %")
+        print(f"Max Residual Error: {metrics.max_error(y_true, y_predicted): .3f}")
+    else:
+        print("MODEL SCORES:")
+        print(f"MAE: {metrics.mean_absolute_error(y_true, np.exp(y_predicted)): .3f}")
+        print(f"MSE: {metrics.mean_squared_error(y_true, np.exp(y_predicted)): .3f}")
+        print(f"RMSE: {math.sqrt(metrics.mean_squared_error(y_true, np.exp(y_predicted))): .3f}")
+        print(f"Accuracy:", round((1-(metrics.mean_absolute_error(y_true, y_predicted)/df[depend_feat].mean()))*100,2),
+              "%")
+        print(f"R2: {100 * metrics.r2_score(y_true, y_predicted): .3f} %")
+        print(f"Max Residual Error: {metrics.max_error(y_true, np.exp(y_predicted)): .3f}")
+    
 
 #################################################################################################################################
 
 # method whole prediction:
 
 # function for creating pipeline and fitting model (created by the pipeline), predict and printing scores
-def pipeline_fit_predict(reg, categoric, numeric, x_train, y_train, x_val, y_val, df, depend_feat):
+def pipeline_fit_predict(reg, categoric, numeric, x_train, y_train, x_val, y_val, df, depend_feat, if_log):
     pipeline = pipeline_for_prediction(categoric, numeric, reg)
     pipeline.fit(x_train, y_train)
     y_predict = pipeline.predict(x_val)
-    get_prediction_scores(y_val, y_predict, df, depend_feat)
+    get_prediction_scores(if_log, y_val, y_predict, df, depend_feat)
 
 #################################################################################################################################
     
