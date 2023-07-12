@@ -16,7 +16,9 @@ import pandas as pd
 
 def cat_and_num(spatial_feature):
     
-    categoric = ['start_stamp', spatial_feature,'dayOfWeek','start_time_month','start_time_day','start_time_week',
+    categoric = [#'start_stamp', 
+                 spatial_feature,'dayOfWeek',#'start_time_month',
+        'start_time_day','start_time_week',
              'isHoliday','description','isRushhour', 'season']
     numeric = ['temperature_celsius','wind_speed','wind_direction','humidity','pressure']
     
