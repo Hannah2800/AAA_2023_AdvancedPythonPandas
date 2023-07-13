@@ -15,22 +15,14 @@ import numpy as np
 
 # method for creating the categorical und numerical features:
 
-def cat_and_num(spatial_feature, if_daily):
+def cat_and_num(spatial_feature):
     
-    if if_daily == False:
-        categoric = ['start_stamp', 
-                 spatial_feature,'dayOfWeek',#'start_time_month',
-        'start_time_day','start_time_week',
-             'isHoliday','description','isRushhour', 'season']
-        numeric = ['temperature_celsius','wind_speed','wind_direction','humidity','pressure']
-    else:
-        categoric = [#'start_stamp', 
-                 spatial_feature,'dayOfWeek',#'start_time_month',
-        'start_time_day','start_time_week',
-             'isHoliday','description','isRushhour', 'season']
-        numeric = ['temperature_celsius','wind_speed','wind_direction','humidity','pressure']
-    
+    categoric = ['dayOfWeek','start_stamp', spatial_feature,'start_time_day','start_time_week',
+                 'isHoliday','description','isRushhour', 'season']
+    numeric = ['temperature_celsius','wind_speed','wind_direction','humidity','pressure']
+        
     return categoric, numeric
+
 #################################################################################################################################
      
 # method for transforming the days and season variable to integer:
