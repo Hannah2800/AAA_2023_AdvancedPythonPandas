@@ -10,6 +10,8 @@ from sklearn.model_selection import RandomizedSearchCV, RepeatedStratifiedKFold
 import math
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import TimeSeriesSplit
+from sklearn.model_selection import KFold
 
 #################################################################################################################################
 
@@ -75,13 +77,13 @@ def get_prediction_scores(if_log, y_true, y_predicted, df, depend_feat):
         print(f"Max Residual Error: {metrics.max_error(y_true, y_predicted): .3f}")
     else:
         print("MODEL SCORES:")
-        print(f"MAE: {metrics.mean_absolute_error(y_true, np.exp(y_predicted)): .3f}")
-        print(f"MSE: {metrics.mean_squared_error(y_true, np.exp(y_predicted)): .3f}")
-        print(f"RMSE: {math.sqrt(metrics.mean_squared_error(y_true, np.exp(y_predicted))): .3f}")
+        print(f"MAE: {metrics.mean_absolute_error(np.exp(y_true), np.exp(y_predicted)): .3f}")
+        print(f"MSE: {metrics.mean_squared_error(np.exp(y_true), np.exp(y_predicted)): .3f}")
+        print(f"RMSE: {math.sqrt(metrics.mean_squared_error(np.exp(y_true), np.exp(y_predicted))): .3f}")
         print(f"Accuracy:", round((1-(metrics.mean_absolute_error(y_true, y_predicted)/df[depend_feat].mean()))*100,2),
               "%")
         print(f"R2: {100 * metrics.r2_score(y_true, y_predicted): .3f} %")
-        print(f"Max Residual Error: {metrics.max_error(y_true, np.exp(y_predicted)): .3f}")
+        print(f"Max Residual Error: {metrics.max_error(np.exp(y_true), np.exp(y_predicted)): .3f}")
     
 
 #################################################################################################################################
@@ -121,7 +123,7 @@ def find_best_hyperparameters(pipeline, x_val, y_val, model_par, score, n_iter =
         param_distributions=model_par,
         n_jobs=n_jobs,
         n_iter=n_iter,
-        cv=RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=42),
+        cv=KFold(n_splits=n_splits, shuffle = True, random_state = 42),#TimeSeriesSplit(n_splits=n_splits),#, n_repeats=n_repeats, random_state=42),
         scoring=score,
         random_state=42,
         verbose=verbose,
