@@ -1,6 +1,24 @@
 import seaborn as sns
 import folium
 import geopandas as gpd
+from h3 import h3
+import json
+
+city_bounding = gpd.read_file('data/boundaries_city.geojson')
+city_bounding_json_string = city_bounding.to_json()
+city_bounding_json = json.loads(city_bounding_json_string)
+city_bounding_poly = city_bounding_json["features"][0]
+
+# Create a GeoDataFrame from the MultiPolygon
+gdf = gpd.GeoDataFrame.from_features([city_bounding_poly])
+
+# Explode the MultiPolygon into individual polygons
+exploded_city_bounding_poly = gdf.explode()
+
+# Get both Polygons
+cityBoundingPolygonSmall = {'type': 'Polygon', 'coordinates': city_bounding_poly["geometry"]["coordinates"][0]}
+cityBoundingPolygonBig = {'type': 'Polygon', 'coordinates': city_bounding_poly["geometry"]["coordinates"][1]}
+
 CHICAGO_COORD = [41.86364, -87.72645]
 
 def create_top_ten_map(best_indexes = [], worst_indexes = []):
@@ -59,24 +77,21 @@ def descr_stat(dataframe, columns=[], group_by=[], sort=False, sort_by=[], as_in
         else:
             grouped = grouped.sort_values(by=sort_by)
 
-    print("Rename done")
+    # print("Rename done")
     if(plot==True):
         if(as_index==False):
             grouped = grouped.sort_values(by=group_by)[[agg_mode_l]]
             sns.lineplot(grouped)
         else:
-            grouped = grouped
+            # grouped = grouped
             sns.lineplot(grouped)
 
-    print("Head: \n")
-    print(grouped.head())
-    print("Head-Indexes:")
-    print(grouped.head().index)
-    print("Tail: \n")
-    print(grouped.tail())
-    # if(as_index==True):
-    print("Tail-Indexes:")
-    print(grouped.tail().index)
+    # print("Head: \n")
+    # print(grouped.head())
+    # print("Head-Indexes:", grouped.head().index)
+    # print("Tail: \n")
+    # print(grouped.tail())
+    # print("Tail-Indexes:",grouped.tail().index)
 
     map = 0
 
@@ -84,5 +99,43 @@ def descr_stat(dataframe, columns=[], group_by=[], sort=False, sort_by=[], as_in
         map = create_top_ten_map(grouped.head().index, grouped.tail().index)
 
     return grouped, map
+
+
+
+def visualize_hexagons(hexagons, color="red", folium_map=None):
+    """
+    hexagons is a list of hexcluster. Each hexcluster is a list of hexagons. 
+    eg. [[hex1, hex2], [hex3, hex4]]
+    """
+    polylines = []
+    lat = []
+    lng = []
+    for hex in hexagons:
+        polygons = h3.h3_set_to_multi_polygon([hex], geo_json=False)
+        # flatten polygons into loops.
+        outlines = [loop for polygon in polygons for loop in polygon]
+        polyline = [outline + [outline[0]] for outline in outlines][0]
+        lat.extend(map(lambda v:v[0],polyline))
+        lng.extend(map(lambda v:v[1],polyline))
+        polylines.append(polyline)
+    
+    if folium_map is None:
+        m = folium.Map(location=[sum(lat)/len(lat), sum(lng)/len(lng)], zoom_start=10, tiles='cartodbpositron')
+    else:
+        m = folium_map
+    for polyline in polylines:
+        my_PolyLine=folium.PolyLine(locations=polyline,weight=8,color=color)
+        m.add_child(my_PolyLine)
+    return m
+    
+
+def visualize_polygon(polyline, color):
+    polyline.append(polyline[0])
+    lat = [p[0] for p in polyline]
+    lng = [p[1] for p in polyline]
+    m = folium.Map(location=[sum(lat)/len(lat), sum(lng)/len(lng)], zoom_start=11, tiles='cartodbpositron')
+    my_PolyLine=folium.PolyLine(locations=polyline,weight=8,color=color)
+    m.add_child(my_PolyLine)
+    return m
 
     
