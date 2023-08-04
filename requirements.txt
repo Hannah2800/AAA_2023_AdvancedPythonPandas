@@ -12,3 +12,4 @@ scipy
 h3
 tqdm
 shapely
+tensorflow
