@@ -1,0 +1,14 @@
+numpy
+pandas
+matplotlib
+simpy
+seaborn
+folium
+geopandas
+gymnasium
+sklearn
+holidays
+scipy
+h3
+tqdm
+shapely
