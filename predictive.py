@@ -6,7 +6,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.metrics import mean_squared_error
 from sklearn import metrics
-from sklearn.model_selection import RandomizedSearchCV, RepeatedStratifiedKFold
+from sklearn.model_selection import RandomizedSearchCV, RepeatedKFold
 import math
 import pandas as pd
 import numpy as np
@@ -101,7 +101,7 @@ def pipeline_fit_predict(reg, categoric, numeric, x_train, y_train, x_val, y_val
     
 # method for performing RandomizedSearchCV for hyperparameter tuning:
 
-# function for finding the best hyperparameter by using RandomizedSearchCV and RepeatedStratifiedKFold
+# function for finding the best hyperparameter by using RandomizedSearchCV and RepeatedKFold
 """parameter:
    - pipeline: used pipeline for grid search (the pipeline contains the model)
    - x_val: data set (features) used for grid search
@@ -110,12 +110,12 @@ def pipeline_fit_predict(reg, categoric, numeric, x_train, y_train, x_val, y_val
    - score: used score measure 
    - n_iter: how often grid search will be done
    - n_repeats: how often the data set is randomly splitted (by using the same random hyperparameter) in n_splits
-   - n_splits: number of splits in RepeatedStratifiedKFold
+   - n_splits: number of splits in TimeSeriesSplit
    - verbose: getting information during the grid search
 """
 
 def find_best_hyperparameters(pipeline, x_val, y_val, model_par, score, n_iter = 100,#50,  
-                                   n_repeats=1, n_splits=5, n_jobs=1, verbose=True): #  n_repeats=3
+                                   n_repeats=1, n_splits=5, n_jobs=1, verbose=True): #  n_repeats=3, n_jobs=4
     
     print(f"Running grid search for the model based on {score}")
     grid_pipeline = RandomizedSearchCV(
@@ -123,7 +123,7 @@ def find_best_hyperparameters(pipeline, x_val, y_val, model_par, score, n_iter =
         param_distributions=model_par,
         n_jobs=n_jobs,
         n_iter=n_iter,
-        cv=KFold(n_splits=n_splits, shuffle = True, random_state = 42),#TimeSeriesSplit(n_splits=n_splits),#, n_repeats=n_repeats, random_state=42),
+        cv=TimeSeriesSplit(n_splits=5),
         scoring=score,
         random_state=42,
         verbose=verbose,
