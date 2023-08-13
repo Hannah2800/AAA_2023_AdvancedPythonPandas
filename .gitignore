@@ -134,5 +134,5 @@ dmypy.json
 .DS_Store
 
 # Ignore Deep Learning
-kerastuner_LOG/*
-untitled_project/*
+Task 4 - Predictive Analysis/kerastuner_LOG/*
+Task 4 - Predictive Analysis/untitled_project/*
