@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.model_selection import KFold
+from sklearn.metrics import mean_absolute_percentage_error
 
 #################################################################################################################################
 
@@ -68,22 +69,24 @@ def get_prediction_scores(if_log, y_true, y_predicted, df, depend_feat):
     
     if if_log == False:
         print("MODEL SCORES:")
-        print(f"MAE: {metrics.mean_absolute_error(y_true, y_predicted): .3f}")
-        print(f"MSE: {metrics.mean_squared_error(y_true, y_predicted): .3f}")
-        print(f"RMSE: {math.sqrt(metrics.mean_squared_error(y_true, y_predicted)): .3f}")
-        print(f"Accuracy:", round((1-(metrics.mean_absolute_error(y_true, y_predicted)/df[depend_feat].mean()))*100,2),
+        print(f"MAE: {metrics.mean_absolute_error(y_true, y_predicted): .4f}")
+        print(f"MSE: {metrics.mean_squared_error(y_true, y_predicted): .4f}")
+        print(f"RMSE: {math.sqrt(metrics.mean_squared_error(y_true, y_predicted)): .4f}")
+        print(f"MAPE: {(metrics.mean_absolute_percentage_error(y_true, y_predicted))*100: .4f} %")
+        print(f"Rough Accuracy Approximation:", round((1-(metrics.mean_absolute_error(y_true, y_predicted)/df[depend_feat].mean()))*100,2),
               "%")
-        print(f"R2: {100 * metrics.r2_score(y_true, y_predicted): .3f} %")
-        print(f"Max Residual Error: {metrics.max_error(y_true, y_predicted): .3f}")
+        print(f"R2: {100 * metrics.r2_score(y_true, y_predicted): .4f} %")
+        print(f"Max Residual Error: {metrics.max_error(y_true, y_predicted): .4f}")
     else:
         print("MODEL SCORES:")
-        print(f"MAE: {metrics.mean_absolute_error(np.exp(y_true), np.exp(y_predicted)): .3f}")
-        print(f"MSE: {metrics.mean_squared_error(np.exp(y_true), np.exp(y_predicted)): .3f}")
-        print(f"RMSE: {math.sqrt(metrics.mean_squared_error(np.exp(y_true), np.exp(y_predicted))): .3f}")
-        print(f"Accuracy:", round((1-(metrics.mean_absolute_error(y_true, y_predicted)/df[depend_feat].mean()))*100,2),
+        print(f"MAE: {metrics.mean_absolute_error(np.exp(y_true), np.exp(y_predicted)): .4f}")
+        print(f"MSE: {metrics.mean_squared_error(np.exp(y_true), np.exp(y_predicted)): .4f}")
+        print(f"RMSE: {math.sqrt(metrics.mean_squared_error(np.exp(y_true), np.exp(y_predicted))): .4f}")
+        print(f"MAPE: {(metrics.mean_absolute_percentage_error(np.exp(y_true), np.exp(y_predicted)))*100: .4f} %")
+        print(f"Rough Accuracy Approximation:", round((1-(metrics.mean_absolute_error(y_true, y_predicted)/df[depend_feat].mean()))*100,2),
               "%")
-        print(f"R2: {100 * metrics.r2_score(y_true, y_predicted): .3f} %")
-        print(f"Max Residual Error: {metrics.max_error(np.exp(y_true), np.exp(y_predicted)): .3f}")
+        print(f"R2: {100 * metrics.r2_score(y_true, y_predicted): .4f} %")
+        print(f"Max Residual Error: {metrics.max_error(np.exp(y_true), np.exp(y_predicted)): .4f}")
     
 
 #################################################################################################################################
