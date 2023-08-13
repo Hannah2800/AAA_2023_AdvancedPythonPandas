@@ -132,3 +132,7 @@ dmypy.json
 
 # Ignore DS_Store
 .DS_Store
+
+# Ignore Deep Learning
+kerastuner_LOG/*
+untitled_project/*
