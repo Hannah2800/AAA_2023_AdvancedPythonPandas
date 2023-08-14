@@ -71,7 +71,7 @@ def build_dqn(lr, n_actions, input_dims, fc1_dims, fc2_dims):
 class DeepQAgent(object):
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
                  input_dims, epsilon_dec=0.996,  epsilon_end=0.01,
-                 mem_size=10000, fname='dqn_model.h5'):
+                 mem_size=10000, fname='dqn_model.keras'):
         self.action_space = [i for i in range(n_actions)]
         self.gamma = gamma
         self.epsilon = epsilon
@@ -119,8 +119,9 @@ class DeepQAgent(object):
 
             _ = self.q_eval.fit(state, q_target, verbose=0)
 
-            self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > \
-                self.epsilon_min else self.epsilon_min
+    def decay_epsilon(self):
+        self.epsilon = max(self.epsilon_min,
+                           self.epsilon - self.epsilon_dec)
 
     def save_model(self):
         self.q_eval.save(self.model_file)
@@ -156,8 +157,9 @@ def run_deepq_learning(env, deepq_agent, n_episodes, **kwargs):
         # print('episode: ', i,'score: %.2f' % score,
         #        ' average score %.2f' % avg_score)
 
-        if i % 10 == 0 and i > 0:
-            deepq_agent.save_model()
+        deepq_agent.decay_epsilon()
+
+    deepq_agent.save_model()
 
     return scores, eps_history
 
@@ -167,8 +169,8 @@ def run_deepq_learning(env, deepq_agent, n_episodes, **kwargs):
 # main
 if __name__ == '__main__':
     # hyperparameter
-    n_episodes = 1000
-    learning_rate = 0.0005
+    n_episodes = 10000
+    learning_rate = 0.001
     start_epsilon = 1.0
     # reduce the exploration over time
     epsilon_decay = start_epsilon / (n_episodes / 2)
@@ -183,6 +185,7 @@ if __name__ == '__main__':
     scores, eps_history = run_deepq_learning(env, deepq_agent, n_episodes)
 
     x = [i+1 for i in range(n_episodes)]
-    reinforcement.plot_learning_rewards_epsilon(x, scores, eps_history)
+    reinforcement.plot_learning_rewards_epsilon(
+        x, scores, eps_history, "deepqlearning.png")
 
     env.close()

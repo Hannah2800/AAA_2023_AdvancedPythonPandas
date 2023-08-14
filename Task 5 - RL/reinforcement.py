@@ -260,3 +260,40 @@ def plot_training_performance(env, agent):
     # axs[1].set_yscale("symlog")
     plt.tight_layout()
     plt.show()
+
+#################################################################################################################################
+
+
+def run_model(env, agent):
+    """method to run one episode"""
+    agent_epsilon = agent.epsilon
+    agent.epsilon = 0
+    terminated = False
+
+    score = 0
+    actions = []
+    battery_levels = [0]
+
+    observation = env.reset()[0]
+    while not terminated:
+        action = agent.get_action(observation, env)
+        observation, reward, terminated, truncated, info = env.step(
+            action)
+        score += reward
+
+        actions.append(action)
+        battery_levels.append(observation[1])
+
+    agent.epsilon = agent.epsilon
+
+    return actions, battery_levels, score
+
+
+def plot_model_run(battery_levels):
+    plt.plot(battery_levels)
+    plt.title("Charging process")
+    plt.ylabel("Battery Level")
+    plt.xlabel("Time")
+    # plt.annotate('%d' % battery_levels[-1],
+    #             xy=(8, battery_levels[-1]), xytext=(8,  battery_levels[-1]))
+    plt.show()
