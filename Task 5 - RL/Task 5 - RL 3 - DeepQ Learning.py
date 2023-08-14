@@ -13,6 +13,8 @@ import reinforcement
 #################################################################################################################################
 
 # setup agent for deepq learning
+
+
 class ReplayBuffer(object):
     def __init__(self, max_size, input_shape, n_actions, discrete=False):
         self.mem_size = max_size
@@ -52,13 +54,14 @@ class ReplayBuffer(object):
 
         return states, actions, rewards, states_, terminal
 
+
 def build_dqn(lr, n_actions, input_dims, fc1_dims, fc2_dims):
     model = Sequential([
-                Dense(fc1_dims, input_shape=(input_dims,)),
-                Activation('relu'),
-                Dense(fc2_dims),
-                Activation('relu'),
-                Dense(n_actions)])
+        Dense(fc1_dims, input_shape=(input_dims,)),
+        Activation('relu'),
+        Dense(fc2_dims),
+        Activation('relu'),
+        Dense(n_actions)])
 
     model.compile(optimizer=Adam(learning_rate=lr), loss='mse')
 
@@ -82,7 +85,7 @@ class DeepQAgent(object):
 
     def remember(self, state, action, reward, new_state, done):
         self.memory.store_transition(state, action, reward, new_state, done)
-        
+
     def get_action(self, state, env):
         state = np.asarray(state)
         state = state[np.newaxis, :]
@@ -90,7 +93,7 @@ class DeepQAgent(object):
         if rand < self.epsilon:
             return env.action_space.sample()
         else:
-            actions = self.q_eval.predict(state, verbose = 0)
+            actions = self.q_eval.predict(state, verbose=0)
             action = np.argmax(actions)
 
         return action
@@ -98,26 +101,26 @@ class DeepQAgent(object):
     def learn(self):
         if self.memory.memory_counter > self.batch_size:
             state, action, reward, new_state, done = \
-                                          self.memory.sample_buffer(self.batch_size)
+                self.memory.sample_buffer(self.batch_size)
 
             action_values = np.array(self.action_space, dtype=np.int8)
             action_indices = np.dot(action, action_values)
 
-            q_eval = self.q_eval.predict(state, verbose = 0)
+            q_eval = self.q_eval.predict(state, verbose=0)
 
-            q_next = self.q_eval.predict(new_state, verbose = 0)
+            q_next = self.q_eval.predict(new_state, verbose=0)
 
             q_target = q_eval.copy()
 
             batch_index = np.arange(self.batch_size, dtype=np.int32)
 
             q_target[batch_index, action_indices] = reward + \
-                                  self.gamma*np.max(q_next, axis=1)*done
+                self.gamma*np.max(q_next, axis=1)*done
 
             _ = self.q_eval.fit(state, q_target, verbose=0)
 
             self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > \
-                           self.epsilon_min else self.epsilon_min
+                self.epsilon_min else self.epsilon_min
 
     def save_model(self):
         self.q_eval.save(self.model_file)
@@ -127,8 +130,9 @@ class DeepQAgent(object):
 
 #################################################################################################################################
 
-# method to run training        
+
 def run_deepq_learning(env, deepq_agent, n_episodes, **kwargs):
+    """method to run training"""
     scores = []
     eps_history = []
 
@@ -140,47 +144,45 @@ def run_deepq_learning(env, deepq_agent, n_episodes, **kwargs):
             action = deepq_agent.get_action(observation, env)
             observation_, reward, done, info, ff = env.step(action)
             score += reward
-            deepq_agent.remember(observation, action, reward, observation_, int(done))
+            deepq_agent.remember(observation, action,
+                                 reward, observation_, int(done))
             observation = observation_
             deepq_agent.learn()
 
         eps_history.append(deepq_agent.epsilon)
         scores.append(score)
 
-        avg_score = np.mean(scores[max(0, i-100):(i+1)])
+        # avg_score = np.mean(scores[max(0, i-100):(i+1)])
         # print('episode: ', i,'score: %.2f' % score,
         #        ' average score %.2f' % avg_score)
 
         if i % 10 == 0 and i > 0:
             deepq_agent.save_model()
-        
+
     return scores, eps_history
 
 #################################################################################################################################
 
+
 # main
-if __name__=='__main__':
-    print("\n")
-    tf.config.list_physical_devices('GPU')
-    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-    
-    exit()
+if __name__ == '__main__':
     # hyperparameter
+    n_episodes = 1000
     learning_rate = 0.0005
     start_epsilon = 1.0
-    n_episodes = 10000
-    epsilon_decay = start_epsilon / (n_episodes / 2)  # reduce the exploration over time
+    # reduce the exploration over time
+    epsilon_decay = start_epsilon / (n_episodes / 2)
     final_epsilon = 0.1
 
     env = reinforcement.SmartChargingEnv()
 
-    deepq_agent = DeepQAgent(alpha=learning_rate, gamma=0.99, epsilon=0.0, epsilon_dec=epsilon_decay, epsilon_end=final_epsilon, 
-                            input_dims=2, n_actions=4, mem_size=1000000, batch_size=64)
+    deepq_agent = DeepQAgent(alpha=learning_rate, gamma=0.99, epsilon=start_epsilon, epsilon_dec=epsilon_decay,
+                             epsilon_end=final_epsilon, input_dims=2, n_actions=4, mem_size=1000000, batch_size=64)
 
     # deepq_agent.load_model()
     scores, eps_history = run_deepq_learning(env, deepq_agent, n_episodes)
-    
+
     x = [i+1 for i in range(n_episodes)]
     reinforcement.plot_learning_rewards_epsilon(x, scores, eps_history)
-    
+
     env.close()
