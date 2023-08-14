@@ -6,10 +6,13 @@ seaborn
 folium
 geopandas
 gymnasium
-sklearn
+scikit-learn
 holidays
 scipy
 h3
 tqdm
 shapely
 tensorflow
+dask
+keras_tuner
+IPython
