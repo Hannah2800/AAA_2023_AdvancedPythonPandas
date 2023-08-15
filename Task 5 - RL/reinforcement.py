@@ -204,8 +204,12 @@ def create_policy_plots(value_grid, policy_grid):
     ax1.set_xlabel("Battery Level")
     ax1.set_ylabel("Time left")
     ax1.zaxis.set_rotate_label(False)
-    ax1.set_zlabel("Value", fontsize=14, rotation=90)
+    ax1.set_zlabel("Rewards", fontsize=14, rotation=90)
     ax1.view_init(20, 220)
+
+    # Adjust layout to make space for the z-label on the left plot
+    fig.subplots_adjust(left=0.08, right=0.85)
+
 
     # plot the policy
     fig.add_subplot(1, 2, 2)
