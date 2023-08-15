@@ -169,7 +169,7 @@ def run_deepq_learning(env, deepq_agent, n_episodes, **kwargs):
 # main
 if __name__ == '__main__':
     # hyperparameter
-    n_episodes = 10000
+    n_episodes = 1
     learning_rate = 0.001
     start_epsilon = 1.0
     # reduce the exploration over time
