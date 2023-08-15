@@ -176,3 +176,13 @@ def spat_and_temp(df,col1,period, col2):
     spa_temp.reset_index(drop=True, inplace=True)
     
     return spa_temp
+
+
+def print_vals(dataframe):
+    if(type(dataframe) is tuple):
+        dataframe = dataframe[0]
+        
+    for i in range(len(dataframe.head())):
+        print("Lowest values in:", dataframe.head().index[i], "with: ", round(dataframe.head().values[i][0], 2)) 
+    for i in range(len(dataframe.tail())):
+        print("Highest values in:", dataframe.tail().index[i], "with: ", round(dataframe.tail().values[i][0], 2))
