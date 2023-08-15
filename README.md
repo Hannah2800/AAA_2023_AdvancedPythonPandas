@@ -10,4 +10,5 @@ In order for all notebooks to run correctly, you must first execute 'Task 1 - Da
 Have fun :) 
 
 Yours sincerely 
+
 Advanced Python Pandas
